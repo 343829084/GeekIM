@@ -1,15 +1,9 @@
-// AUTHOR: Ray Powers
-// DATE: March 3, 2013
-// FILE: msgClient.cpp
-
-// Standard Library
 #include<iostream>
 #include<sstream>
 #include<string>
 #include<cstring>
 #include<stdlib.h>
 
-// Network Function
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<sys/select.h>
@@ -19,15 +13,12 @@
 #include<unistd.h>
 #include<netdb.h>
 
-// User Interface
 #include<curses.h>
 
-// Multithreading
 #include<pthread.h>
 
 using namespace std;
 
-// GLOBALS
 const int INPUT_LINES = 3;
 const char ENTER_SYM = '\n';
 const char BACKSPACE_SYM = '\b';
@@ -49,7 +40,6 @@ int displayStatus = pthread_mutex_init(&displayLock, NULL);
 string serverRsp;
 
 
-// Data Structures
 struct threadArgs {
   int clientSock;
 };
