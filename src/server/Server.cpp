@@ -16,14 +16,74 @@
 #include<unistd.h>
 
 #include<pthread.h>
-#include"Common.h"
 #include"Server.h"
 
 using namespace std;
 
+const int MAXPENDING = 20;
+tr1::unordered_map<string, User> UsersList;
+deque<Msg> MsgQueue;
+pthread_mutex_t MsgQueueLock;
+pthread_mutex_t UserListLock;
+int MsgStatus = pthread_mutex_init(&MsgQueueLock, NULL);
+int UserStatus = pthread_mutex_init(&UserListLock, NULL);
 
+Server::Server(int t_port):m_port(t_port)
+{
 
-void* Server::clientThread(void* args_p) {
+}
+Server::~Server(void)
+{
+    
+}
+
+void Server::Start()
+{
+    int conn_socket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+    if(conn_socket < 0)
+    {
+        cerr << "Error with socket." << endl;
+        exit(-1);
+    }
+    struct sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverAddress.sin_port = htons(m_port);
+
+    int listen_status = listen(conn_socket,MAXPENDING);
+    if(listen_status < 0)
+    {
+        cerr << "Error with listening." << endl;
+        exit(-1);
+
+    }
+    cout << endl << endl << "SERVER: Ready to accept connections." << endl;
+
+    while(true){
+        struct sockaddr_in clientAddress;
+        socklen_t addrLen = sizeof(clientAddress);
+        int clientSocket = accept(conn_socket, (struct sockaddr*) &clientAddress, &addrLen);
+        if (clientSocket < 0) {
+          cerr << "Error accepting connections." << endl;
+          exit(-1);
+        }
+
+        struct threadArgs* args_p = new threadArgs;
+        args_p -> clientSock = clientSocket;
+        pthread_t tid;
+        //int threadStatus = pthread_create(&tid, NULL,clientThread,(void*)(args_p));
+
+        int threadStatus = pthread_create(&tid, NULL,&static_clientThread,this);
+        if (threadStatus != 0){
+          cerr << "Failed to create child process." << endl;
+          close(clientSocket);
+          pthread_exit(NULL);
+        }
+        
+    }
+    return ;
+}
+ void* Server::clientThread(void* args_p) {
   
   threadArgs* tmp = (threadArgs*) args_p;
   int clientSock = tmp -> clientSock;
@@ -54,7 +114,7 @@ void Server::InstantMessage(int clientSock) {
   while (!hasAuthenticated(clientSock, userName)) {
   }
 
-  broadcastMsg( userName, "", true);
+  broadcastMsg(userName, "", true);
 
   FD_ZERO(&clientfd);
   tv.tv_sec = 2;

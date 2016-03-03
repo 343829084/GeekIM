@@ -1,30 +1,26 @@
 #include<iostream>
-#include<sstream>
 #include<string>
-#include<ctime>
-#include<cstdlib>
-#include<tr1/unordered_map>
-#include<deque>
-#include<string.h>
-
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<sys/select.h>
-#include<sys/time.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
-#include<unistd.h>
-
-#include<pthread.h>
+#include"Common.h"
 
 using namespace std;
 
 class Server{
 
 public:
-    Server();
+
+    Server(int t_port);
+
     ~Server();
+
     void* clientThread(void* args_p);
+
+    static void * static_clientThread(void * void_this)
+    {
+        Server * thread_this = static_cast<Server*>(void_this);
+        return thread_this->clientThread(thread_this->params);
+    }
+
+     void Start();
 
     void InstantMessage(int clientSock);
 
@@ -67,5 +63,8 @@ public:
     string GrabJoke();
 
     string GrabPic();
+private:
+    int m_port;
+    void* params;
 };
 
