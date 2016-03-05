@@ -1,5 +1,5 @@
 SRCDIR = ./
-LINUXBIN_PATH = ../../bin
+LINUXBIN_PATH = ./
 
 
 
@@ -22,7 +22,7 @@ INC := -I$(SRCDIR)
 
 LDLIBS =  -lpthread
 
-all: $(EXE_NAME)
+all: clean $(EXE_NAME)
 
 
 $(EXE_NAME): $(LIB_OBJS) | $(LINUXBIN_PATH)
@@ -45,6 +45,7 @@ $(EXE_NAME): $(LIB_OBJS) | $(LINUXBIN_PATH)
 
 clean:
 	rm -f $(LIB_OBJS)
+	rm -f $(EXE_NAME)
 
 
 rebuild: clean all

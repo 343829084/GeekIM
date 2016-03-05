@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cstdio>
 #include<sstream>
 #include<string>
 #include<ctime>
@@ -28,7 +29,7 @@ pthread_mutex_t UserListLock;
 int MsgStatus = pthread_mutex_init(&MsgQueueLock, NULL);
 int UserStatus = pthread_mutex_init(&UserListLock, NULL);
 
-Server::Server(int t_port):m_port(t_port)
+Server::Server(unsigned short t_port):m_port(t_port)
 {
 
 }
@@ -39,16 +40,22 @@ Server::~Server(void)
 
 void Server::Start()
 {
+#ifdef _wbing
+    printf("[wbing]                  1\n");
     int conn_socket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+    printf("conn_socket = %d\n",conn_socket);
     if(conn_socket < 0)
     {
         cerr << "Error with socket." << endl;
         exit(-1);
     }
+    printf("[wbing]                  2\n");
     struct sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
     serverAddress.sin_port = htons(m_port);
+    printf("port=%d\n",m_port);
+    printf("[wbing]                  3\n");
 
     int listen_status = listen(conn_socket,MAXPENDING);
     if(listen_status < 0)
@@ -58,27 +65,37 @@ void Server::Start()
 
     }
     cout << endl << endl << "SERVER: Ready to accept connections." << endl;
+    printf("[wbing]                  4\n");
+#endif
+    socket.init_listenfd(m_port);
 
     while(true){
+    printf("[wbing]                  4.1\n");
         struct sockaddr_in clientAddress;
         socklen_t addrLen = sizeof(clientAddress);
-        int clientSocket = accept(conn_socket, (struct sockaddr*) &clientAddress, &addrLen);
+    printf("[wbing]                  4.2\n");
+        int clientSocket = accept(socket.getsockFd(), (struct sockaddr*) &clientAddress, &addrLen);
+    printf("[wbing]                  4.3\n");
         if (clientSocket < 0) {
           cerr << "Error accepting connections." << endl;
           exit(-1);
         }
+    printf("[wbing]                  5\n");
 
         struct threadArgs* args_p = new threadArgs;
         args_p -> clientSock = clientSocket;
         pthread_t tid;
         //int threadStatus = pthread_create(&tid, NULL,clientThread,(void*)(args_p));
 
+    printf("[wbing]                  6\n");
         int threadStatus = pthread_create(&tid, NULL,&static_clientThread,this);
+    printf("[wbing]                  7\n");
         if (threadStatus != 0){
           cerr << "Failed to create child process." << endl;
           close(clientSocket);
           pthread_exit(NULL);
         }
+    printf("[wbing]                  8\n");
         
     }
     return ;

@@ -1,6 +1,7 @@
 #include<iostream>
 #include<string>
 #include"Common.h"
+#include"Socket.h"
 
 using namespace std;
 
@@ -8,7 +9,7 @@ class Server{
 
 public:
 
-    Server(int t_port);
+    Server(unsigned short t_port);
 
     ~Server();
 
@@ -64,7 +65,8 @@ public:
 
     string GrabPic();
 private:
-    int m_port;
+    Socket socket;
     void* params;
+    unsigned m_port;
 };
 
