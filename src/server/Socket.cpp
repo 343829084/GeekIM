@@ -1,7 +1,6 @@
 #include"common.h"
-#include<iostream>
-using namespace std;
 
+using namespace wbinglib;
 
 
 Socket::Socket()
@@ -13,11 +12,6 @@ Socket::Socket(int fd)
 {
     sockFd = fd;
 
-}
-
-int Socket::getsockFd()
-{
-    return sockFd;
 }
 
 
@@ -67,6 +61,27 @@ bool Socket::listen(int listenq)
     return true;
 
 }
+void Socket::setnonblocking()
+{
+    int opts;
+    opts=fcntl(sockFd,F_GETFL);
+    if(opts<0)
+    {
+      perror("fcntl(sockFd,GETFL)");
+      exit(1);
+    
+    }
+   opts = opts|O_NONBLOCK;
+   if(fcntl(sockFd,F_SETFL,opts)<0)
+   {
+    perror("fcntl(sockFd,SETFL,opts)");
+    exit(1);
+   
+   }
+   return;
+
+}
+
 
 bool Socket::init_listenfd(short port)
 {

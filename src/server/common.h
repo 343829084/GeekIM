@@ -19,10 +19,21 @@
 #include<sys/stat.h>
 
 
+#include"Thread.h"
+#include"Http.h"
+#include"File.h"
+#include"Header.h"
+#include"Processor.h"
+#include"Server.h"
 #include"Socket.h"
+#include"Thread.h"
+#include"main.h"
 
 #define BUF_MAXLEN 1024
 #define LISTENQ 1024
 typedef struct sockaddr SA;
+
+
+
 
 #endif

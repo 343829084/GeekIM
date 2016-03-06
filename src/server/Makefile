@@ -1,58 +1,52 @@
-SRCDIR = ./
-LINUXBIN_PATH = ./
+# C/C++ compiler
+CC		?= gcc
+CXX		?= g++
+
+# Directories
+INCDIRS		=
+LIBDIRS		=
+
+# Includes/Libraries
+INCLUDE		= $(foreach dir, $(INCDIRS), -I$(dir))
+LIBS		= $(foreach dir, $(LIBDIRS), -L$(dir))
+
+# C/C++ flags
+CFLAGS		= -O2 -Wall -std=c99 $(INCLUDE)
+CXXFLAGS	= -O2 -Wall $(INCLUDE)
+
+# Linker flags
+LDFLAGS		= $(LIBS) -lpthread -levent
+
+# Objects
+OBJS	= \
+	Processor.o	\
+	File.o		\
+	Header.o	\
+	Http.o		\
+	Server.o	\
+	Socket.o	\
+	Thread.o	\
+	main.o
+
+# Executable target
+TARGET	= wbing_httpd
 
 
+# Compile target
+$(TARGET): $(OBJS)
+	@echo -e "   LD\t$(notdir $(TARGET))"
+	@$(CXX) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
-SRC = $(wildcard $(SRCDIR)*.cpp)
+# Compile objects
+%.o: %.c
+	@echo -e "   CC\t$(notdir $<)"
+	@$(CC) $(CFLAGS) -c $< -o $@
 
-LIB_OBJS = $(patsubst %.cpp,%.o,$(SRC))
+%.o: %.cpp
+	@echo -e "   CXX\t$(notdir $<)"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-
-EXE_NAME = Server
-
-CC = gcc
-CPP = g++
-LD = g++
-
-CFLAGS = -g   -w -O3 -D__linux__ -D_LINUX -D_TEST -fPIC 
-DEFINES = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_ISOC9X_SOURCE
-
-INC := -I$(SRCDIR) 
-
-
-LDLIBS =  -lpthread
-
-all: clean $(EXE_NAME)
-
-
-$(EXE_NAME): $(LIB_OBJS) | $(LINUXBIN_PATH)
-	@ echo "Create $@"
-	$(LD)  $(CFLAGS) $(LIB_OBJS) -o $(LINUXBIN_PATH)/$(EXE_NAME) $(LDLIBDIR) $(LDLIBS)
-	
-
-%.o: %.S
-	@ echo "Compiling $^"
-	$(CC) $(CFLAGS) $(INC) $(DEFINES) -c -o $@ $<
-	
-%.o:%.c
-	@ echo "Compiling $^"
-	$(CC) $(CFLAGS) $(INC) $(DEFINES) -c $< -o $@
-
-%.o:%.cpp
-	@ echo "Compiling $^"
-	$(CPP) $(CFLAGS) $(INC) $(DEFINES) -c $< -o $@
-	
-
+# Clean data
 clean:
-	rm -f $(LIB_OBJS)
-	rm -f $(EXE_NAME)
-
-
-rebuild: clean all
-
-install: 
-
-
-
-
-
+	@echo -e "Cleaning..."
+	@rm -f *.o $(TARGET)
